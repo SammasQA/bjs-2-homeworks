@@ -27,39 +27,26 @@ function debounceDecoratorNew(func, delay) {
   let timeoutId = null;
   let count = 0;
   let allCount = 0;
-  let lastArgs = null;
-  let hasRepeated = false;
 
   function wrapper(...args) {
-    allCount++;
-    lastArgs = args;
+    allCount++; 
 
     if (timeoutId === null) {
-      // Ведущий вызов (мгновенно)
       func(...args);
-      count++;
-    } else {
-      // Повторный вызов во время таймера – будет отложенный
-      hasRepeated = true;
+      count++; 
     }
 
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => {
-      // Ведомый вызов (асинхронно), если были повторные
-      if (hasRepeated) {
-        func(...lastArgs);
-        count++;
-      }
       timeoutId = null;
-      hasRepeated = false;
     }, delay);
   }
 
   Object.defineProperty(wrapper, 'count', {
-    get: () => count
+    get: () => count,
   });
   Object.defineProperty(wrapper, 'allCount', {
-    get: () => allCount
+    get: () => allCount,
   });
 
   return wrapper;
