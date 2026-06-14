@@ -1,9 +1,9 @@
 // ЗАДАЧА 1. 
 function cachingDecoratorNew(func) {
-  let cache = []; 
+  let cache = [];
 
   return function wrapper(...args) {
-    const hash = md5(args); 
+    const hash = md5(args);
     const cachedItem = cache.find(item => item.hash === hash);
 
     if (cachedItem) {
@@ -15,7 +15,7 @@ function cachingDecoratorNew(func) {
     cache.push({ hash, value: result });
 
     if (cache.length > 5) {
-      cache.shift(); 
+      cache.shift();
     }
 
     console.log("Вычисляем: " + result);
@@ -27,19 +27,29 @@ function debounceDecoratorNew(func, delay) {
   let timeoutId = null;
   let count = 0;
   let allCount = 0;
+  let lastArgs = null;
+  let hasRepeated = false;
 
   function wrapper(...args) {
     allCount++;
+    lastArgs = args;
 
     if (timeoutId === null) {
-      // первый вызов в интервале – мгновенный
       func(...args);
       count++;
-
-      timeoutId = setTimeout(() => {
-        timeoutId = null;
-      }, delay);
+    } else {
+      hasRepeated = true;
     }
+
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      if (hasRepeated) {
+        func(...lastArgs);
+        count++;
+      }
+      timeoutId = null;
+      hasRepeated = false;
+    }, delay);
   }
 
   Object.defineProperty(wrapper, 'count', {
