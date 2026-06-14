@@ -1,28 +1,26 @@
 // ЗАДАЧА 1. 
-function debounceDecoratorNew(func, delay) {
-  let timeoutId = null;
-  let count = 0;
-  let allCount = 0;
+function cachingDecoratorNew(func) {
+  let cache = [];
 
-  function wrapper(...args) {
-    allCount++;
-    if (timeoutId === null) {
-      func(...args);
-      count++;
-      timeoutId = setTimeout(() => {
-        timeoutId = null;
-      }, delay);
+  return function wrapper(...args) {
+    const hash = md5(args);
+    const cachedItem = cache.find(item => item.hash === hash);
+
+    if (cachedItem) {
+      console.log("Из кеша: " + cachedItem.value);
+      return "Из кеша: " + cachedItem.value;
     }
-  }
 
-  Object.defineProperty(wrapper, 'count', {
-    get: () => count
-  });
-  Object.defineProperty(wrapper, 'allCount', {
-    get: () => allCount
-  });
+    const result = func(...args);
+    cache.push({ hash, value: result });
 
-  return wrapper;
+    if (cache.length > 5) {
+      cache.shift();
+    }
+
+    console.log("Вычисляем: " + result);
+    return "Вычисляем: " + result;
+  };
 }
 // ЗАДАЧА 2. 
 function debounceDecoratorNew(func, delay) {
@@ -37,16 +35,17 @@ function debounceDecoratorNew(func, delay) {
     lastArgs = args;
 
     if (timeoutId === null) {
-     
+      // Ведущий вызов (мгновенно)
       func(...args);
       count++;
     } else {
-  
+      // Повторный вызов во время таймера – будет отложенный
       hasRepeated = true;
     }
 
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => {
+      // Ведомый вызов (асинхронно), если были повторные
       if (hasRepeated) {
         func(...lastArgs);
         count++;
@@ -65,7 +64,6 @@ function debounceDecoratorNew(func, delay) {
 
   return wrapper;
 }
-
 /*
 //Для проверки
 const sendSignal = (signalOrder, delay) => console.log("Сигнал отправлен", signalOrder, delay);
