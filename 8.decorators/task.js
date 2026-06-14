@@ -1,26 +1,28 @@
 // ЗАДАЧА 1. 
-function cachingDecoratorNew(func) {
-  let cache = [];
+function debounceDecoratorNew(func, delay) {
+  let timeoutId = null;
+  let count = 0;
+  let allCount = 0;
 
-  return function wrapper(...args) {
-    const hash = md5(args);
-    const cachedItem = cache.find(item => item.hash === hash);
-
-    if (cachedItem) {
-      console.log("Из кеша: " + cachedItem.value);
-      return "Из кеша: " + cachedItem.value;
+  function wrapper(...args) {
+    allCount++;
+    if (timeoutId === null) {
+      func(...args);
+      count++;
+      timeoutId = setTimeout(() => {
+        timeoutId = null;
+      }, delay);
     }
+  }
 
-    const result = func(...args);
-    cache.push({ hash, value: result });
+  Object.defineProperty(wrapper, 'count', {
+    get: () => count
+  });
+  Object.defineProperty(wrapper, 'allCount', {
+    get: () => allCount
+  });
 
-    if (cache.length > 5) {
-      cache.shift();
-    }
-
-    console.log("Вычисляем: " + result);
-    return "Вычисляем: " + result;
-  };
+  return wrapper;
 }
 // ЗАДАЧА 2. 
 function debounceDecoratorNew(func, delay) {
