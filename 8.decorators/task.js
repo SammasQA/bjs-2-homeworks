@@ -29,18 +29,17 @@ function debounceDecoratorNew(func, delay) {
   let allCount = 0;
 
   function wrapper(...args) {
-    allCount++; 
+    allCount++;
 
     if (timeoutId === null) {
-  
+      // первый вызов в интервале – мгновенный
       func(...args);
       count++;
-    }
 
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      timeoutId = null; 
-    }, delay);
+      timeoutId = setTimeout(() => {
+        timeoutId = null;
+      }, delay);
+    }
   }
 
   Object.defineProperty(wrapper, 'count', {
