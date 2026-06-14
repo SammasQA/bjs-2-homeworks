@@ -23,20 +23,19 @@ function cachingDecoratorNew(func) {
   };
 }
 // ЗАДАЧА 2. 
+
 function debounceDecoratorNew(func, delay) {
-  let timeoutId = null;
+  let lastCallTime = 0;
   let count = 0;
   let allCount = 0;
 
   function wrapper(...args) {
     allCount++;
-
-    if (timeoutId === null) {
+    const now = Date.now();
+    if (now - lastCallTime >= delay) {
       func(...args);
       count++;
-      timeoutId = setTimeout(() => {
-        timeoutId = null;
-      }, delay);
+      lastCallTime = now;
     }
   }
 
