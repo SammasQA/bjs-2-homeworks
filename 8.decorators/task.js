@@ -27,29 +27,17 @@ function debounceDecoratorNew(func, delay) {
   let timeoutId = null;
   let count = 0;
   let allCount = 0;
-  let lastArgs = null;
-  let hasRepeated = false;
 
   function wrapper(...args) {
     allCount++;
-    lastArgs = args;
 
     if (timeoutId === null) {
       func(...args);
       count++;
-    } else {
-      hasRepeated = true;
+      timeoutId = setTimeout(() => {
+        timeoutId = null;
+      }, delay);
     }
-
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      if (hasRepeated) {
-        func(...lastArgs);
-        count++;
-      }
-      timeoutId = null;
-      hasRepeated = false;
-    }, delay);
   }
 
   Object.defineProperty(wrapper, 'count', {
