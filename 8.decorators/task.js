@@ -23,20 +23,35 @@ function cachingDecoratorNew(func) {
   };
 }
 // ЗАДАЧА 2. 
-
 function debounceDecoratorNew(func, delay) {
-  let lastCallTime = 0;
+  let timeoutId = null;
   let count = 0;
   let allCount = 0;
+  let lastArgs = null;
+  let hasRepeated = false;
 
   function wrapper(...args) {
     allCount++;
-    const now = Date.now();
-    if (now - lastCallTime >= delay) {
+    lastArgs = args;
+
+    if (timeoutId === null) {
+     
       func(...args);
       count++;
-      lastCallTime = now;
+    } else {
+  
+      hasRepeated = true;
     }
+
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      if (hasRepeated) {
+        func(...lastArgs);
+        count++;
+      }
+      timeoutId = null;
+      hasRepeated = false;
+    }, delay);
   }
 
   Object.defineProperty(wrapper, 'count', {
